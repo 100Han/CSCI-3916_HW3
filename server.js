@@ -45,7 +45,7 @@ router.post('/signup',  function(req, res) {
 
     // check requirement field for signup 
     if (!req.body.username || !req.body.name||!req.body.password) {
-        res.json({success: false, msg: 'Please pass username, name and password.'});
+       return res.json({success: false, msg: 'Please pass username, name and password.'});
     } else {
         // check user exist
         authModel.findOne({username:req.body.username}, (err,doc)=>
@@ -53,7 +53,7 @@ router.post('/signup',  function(req, res) {
               if(err)
               {
                          console.log(err);
-                         res.status(500).json({"success":false, "message": "internal server error"});
+                        return res.status(500).json({"success":false, "message": "internal server error"});
               }
               else            
               {
@@ -70,12 +70,12 @@ router.post('/signup',  function(req, res) {
                         if(!err)
                         {
                             
-                        res.status(200).json({'success':true,'message':'user created successfully'});
+                      return  res.status(200).json({'success':true,'message':'user created successfully'});
                         
                         }
                         else{
                             console.log(err);
-                            res.status(500).json({"success":false, "message": "internal server error"});
+                           return res.status(500).json({"success":false, "message": "internal server error"});
                             
                         }  
                         } 
@@ -83,7 +83,7 @@ router.post('/signup',  function(req, res) {
                 }
                 else
                 {
-                             res.status(400).json({'success':false,'message':'user already exist'})
+                            return res.status(400).json({'success':false,'message':'user already exist'})
                 }
                           
               }
@@ -100,23 +100,23 @@ router.post('/signin', function(req, res) {
           {
                     
                      console.log(err);
-                     res.status(500).json({"success":false, "message": "internal server error"});
+                   return  res.status(500).json({"success":false, "message": "internal server error"});
           }
           else
           {
               if(user==null)
               {
-                res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
+               return res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
               }
               else {
                 // check if password matches
                 if (user.validPassword(req.body.password)) {
                    var userToken = {username: user.username, name: user.name};
                     var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                    res.json({success: true, token: 'JWT ' + token});
+                  return  res.json({success: true, token: 'JWT ' + token});
                 }
                 else {
-                    res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
+                   return res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
                 }
             };
           }
@@ -139,17 +139,17 @@ router.route("/movies").get(authJwtController.isAuthenticated,function(req,res)
         {
             if((Array.isArray(doc) && doc.length==0) || doc==null)
             {
-                   res.status(200).json({"movies":null});
+                 return  res.status(200).json({"movies":null});
             }
             else
             {
-                res.status(200).json({"movies":doc});
+              return  res.status(200).json({"movies":doc});
             }
         }
         else
         {
             console.log(err)
-            res.status(500).json({"success":false, "message": "internal server error"});
+           return res.status(500).json({"success":false, "message": "internal server error"});
         }
 
     }
@@ -161,7 +161,7 @@ router.route("/movies").post(authJwtController.isAuthenticated,function(req,res)
 {  
     if(!req.body.title || !req.body.actors || !req.body.year || !req.body.genre )
     {
-        res.json({success: false, msg: 'Please pass title, year, genre and actors.'});
+       return res.json({success: false, msg: 'Please pass title, year, genre and actors.'});
     }
     // check for user the title exist
   movieModel.findOne({title:req.body.title},(err,doc)=>{
@@ -169,7 +169,7 @@ router.route("/movies").post(authJwtController.isAuthenticated,function(req,res)
                     {
                        if(doc!=null)
                        {
-                           res.status(200).json({"success":false, "message":"movie title already exist"});
+                        return   res.status(200).json({"success":false, "message":"movie title already exist"});
                        }
                        else
                        {
@@ -181,15 +181,15 @@ router.route("/movies").post(authJwtController.isAuthenticated,function(req,res)
                         movies.username=req.user.username;
                        if(!movies.validYear(year))
                         {
-                           res.status(400).json({"success":false, "message":"invalid year format or missing year","year":"YYYY-MM-DD"});
+                          return res.status(400).json({"success":false, "message":"invalid year format or missing year","year":"YYYY-MM-DD"});
                         }
                        else if (!movies.validGenre(genre))
                         {
-                            res.status(400).json({"success":false, "message":"invalid genre name or missing genre. you can choose genre from (ACTION,ADVENTURE,COMEDY,DRAMA,FANTASY,HORROR,MYSTERY,THRILLER,WESTERN)"});
+                           return res.status(400).json({"success":false, "message":"invalid genre name or missing genre. you can choose genre from (ACTION,ADVENTURE,COMEDY,DRAMA,FANTASY,HORROR,MYSTERY,THRILLER,WESTERN)"});
                         }
                         else if (!movies.validActors(actors))
                         {
-                            res.status(400).json({"success":false, "message":"invalid actors format or missing actors or list of actors is less than 3",
+                           return res.status(400).json({"success":false, "message":"invalid actors format or missing actors or list of actors is less than 3",
                          "actors":"[{actorname:name,charactername:name},{actorname:name,charactername:name},{actorname:name,charactername:name}]"});
                         }
                         else
@@ -200,12 +200,12 @@ router.route("/movies").post(authJwtController.isAuthenticated,function(req,res)
                                         if(!err)
                                         {
                                             
-                                        res.status(200).json({'success':true,'message':'movies added successfully'});
+                                      return  res.status(200).json({'success':true,'message':'movies added successfully'});
                                         
                                         }
                                         else{
                                             console.log(err);
-                                            res.status(500).json({"success":false, "message": "internal server error"});
+                                           return res.status(500).json({"success":false, "message": "internal server error"});
                                             
                                         }  
                                         });
@@ -216,7 +216,7 @@ router.route("/movies").post(authJwtController.isAuthenticated,function(req,res)
                     else
                     {
                         console.log(err);
-                            res.status(500).json({"success":false, "message":"internal server error"});
+                           return res.status(500).json({"success":false, "message":"internal server error"});
                     }
   });
 });
